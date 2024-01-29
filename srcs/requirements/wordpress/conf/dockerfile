@@ -1,0 +1,48 @@
+FROM debian:bullseye
+
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y \
+    mariadb-client \
+    curl \
+    wget \
+    lsb-release \
+    ca-certificates
+    
+RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
+    echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list && \
+    apt-get update && \
+    apt-get install -y php8.0-fpm php8.0-mysqli php8.0-curl php8.0-xml php8.0-gd php8.0-mbstring && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN mkdir -p /run/php/
+#Download and install WordPress
+
+RUN mkdir var/www/
+RUN curl -o /tmp/wordpress-6.2.tar.gz https://wordpress.org/wordpress-6.2.tar.gz && \
+    tar -xzvf /tmp/wordpress-6.2.tar.gz -C /var/www/ && \
+    rm /tmp/wordpress-6.2.tar.gz && \
+    chown -R www-data:www-data /var/www/wordpress
+
+# maybe i should create the path /run/php here for the fpm socket file ?? 
+COPY conf/wp-config.php /var/www/wordpress/wp-config.php
+COPY conf/errordisplay.php /var/www/wordpress/errordisplay.php
+COPY conf/www.conf /etc/php/8.0/fpm/pool.d/www.conf
+WORKDIR /var/www/wordpress/
+RUN     chmod 644 wp-config.php
+
+RUN		curl -O \
+			https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+
+RUN		chmod +x wp-cli.phar \
+			&& mv wp-cli.phar /usr/local/bin/wp
+
+RUN		chown -R www-data:www-data .
+
+
+# Expose port 9000 for PHP-FPM
+EXPOSE 9000
+
+# Start PHP-FPM service
+CMD ["php-fpm8.0", "--nodaemonize"]

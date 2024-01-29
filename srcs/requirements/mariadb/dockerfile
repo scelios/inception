@@ -1,0 +1,36 @@
+FROM debian:bullseye
+
+# export MYSQL_DATABASE=wp_db
+# export MYSQL_ROOT_PASSWORD=2
+# export MYSQL_USER=billy
+# export MYSQL_PASSWORD=2
+# export MYSQL_HOST=db
+
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+ARG MYSQL_ROOT_PASSWORD
+ARG MYSQL_DATABASE
+# Update package lists and install MariaDB
+RUN apt-get update && \
+    apt-get -y upgrade 
+  
+RUN  apt-get install -y mariadb-server && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Set the owner and group of the necessary directories for MariaDB
+#RUN chown -R mysql:mysql /var/lib/mysql
+
+# Copy the custom configuration file
+COPY conf/wordpress.sql /
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/
+
+COPY conf/db_create_script.sh /
+RUN chmod +x db_create_script.sh && ./db_create_script.sh \
+    && rm -rf db_create_script.sh 
+
+# Expose the default MariaDB port
+EXPOSE 3306
+
+# Set the default command to start MariaDB
+ENTRYPOINT ["mysqld"]
