@@ -27,8 +27,8 @@ YML_DIR		=  ./srcs
 
 # Beginning of makefile rules.
 init: 
-		@mkdir -p ${HOME}/beaudibe/data/wordpress_code/
-		@mkdir -p ${HOME}/beaudibe/data/wordpress_db/
+		@mkdir -p /home/beaudibe/data/wordpress_code/
+		@mkdir -p /home/beaudibe/data/wordpress_db/
 		@echo "${GREEN}directories created successfully for wordpress db/code ...${NC}"
 		
 help:
@@ -68,10 +68,10 @@ mysql-db:
 		docker-compose -f ${YML_DIR}/docker-compose.yml exec ${DATABASE} mysql --host=localhost
 
 delete-db:
-		@rm -rf ~/${HOME}/beaudibe/data/wordpress_db/*
+		@rm -rf ~/home/beaudibe/data/wordpress_db/*
 		@echo "${GREEN}database volume content deleted successfully ...${NC}"
 delete-code:
-		@rm -rf ~/${HOME}/beaudibe/data/wordpress_code/*
+		@rm -rf ~/home/beaudibe/data/wordpress_code/*
 		@echo "${GREEN}code volume content deleted successfully ...${NC}"
 		
 delimgs: destroy

@@ -1,4 +1,0 @@
-docker compose exec db /bin/bash (commande a faire lorsque le cocker compose est lance)
-mysqldump -u root -p wp_db > wordpress.sql
-docker export mariadb > pop.tar
-wslpath -w .  
